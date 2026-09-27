@@ -1,14 +1,22 @@
 {
-  "name": "fs-vacuum",
+  "name": "fs-vacuum-modern",
   "version": "1.2.10",
   "description": "recursively remove empty directories -- to a point",
   "main": "vacuum.js",
+  "types": "index.d.ts",
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
-    "test": "standard && tap test/*.js"
+    "test": "npm run test:golden && npm run test:differential && npm run test:race && npm run test:types",
+    "test:golden": "node test/modern/golden-master.test.js",
+    "test:differential": "node test/modern/differential.test.js",
+    "test:race": "node test/modern/race.test.js",
+    "test:types": "tsc --noEmit --strict --module node16 --moduleResolution node16 --target es2022 test/modern/types.test.ts"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/npm/fs-vacuum.git"
+    "url": "https://github.com/sbty/fs-vacuum-modern.git"
   },
   "keywords": [
     "rm",
@@ -16,22 +24,16 @@
     "clean"
   ],
   "author": "Forrest L Norvell <ogd@aoaioxxysz.net>",
+  "contributors": [
+    "sbty"
+  ],
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/npm/fs-vacuum/issues"
+    "url": "https://github.com/sbty/fs-vacuum-modern/issues"
   },
-  "homepage": "https://github.com/npm/fs-vacuum",
+  "homepage": "https://github.com/sbty/fs-vacuum-modern",
   "devDependencies": {
-    "errno": "~0.1.0",
-    "mkdirp": "^0.5.1",
-    "require-inject": "^1.4.4",
-    "standard": "^6.0.8",
-    "tap": "^12.4.0",
-    "tmp": "0.0.28"
-  },
-  "dependencies": {
-    "graceful-fs": "^4.1.2",
-    "path-is-inside": "^1.0.1",
-    "rimraf": "^2.5.2"
+    "fs-vacuum-upstream": "npm:fs-vacuum@1.2.10",
+    "typescript": "7.0.2"
   }
 }

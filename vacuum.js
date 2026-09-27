@@ -1,16 +1,44 @@
-var assert = require('assert')
-var dirname = require('path').dirname
-var resolve = require('path').resolve
-var isInside = require('path-is-inside')
+var assert = require('node:assert')
+var fs = require('node:fs')
+var path = require('node:path')
+var dirname = path.dirname
+var resolve = path.resolve
 
-var rimraf = require('rimraf')
-var lstat = require('graceful-fs').lstat
-var readdir = require('graceful-fs').readdir
-var rmdir = require('graceful-fs').rmdir
-var unlink = require('graceful-fs').unlink
+var lstat = fs.lstat
+var readdir = fs.readdir
+var rm = fs.rm
+var rmdir = fs.rmdir
+var unlink = fs.unlink
 
 module.exports = vacuum
 
+// Preserve path-is-inside 1.x semantics: the same path is allowed, prefix
+// collisions are rejected, and Windows paths are compared case-insensitively.
+function isInside (child, parent) {
+  child = stripTrailingSeparator(child)
+  parent = stripTrailingSeparator(parent)
+  if (process.platform === 'win32') {
+    child = child.toLowerCase()
+    parent = parent.toLowerCase()
+  }
+  return child.lastIndexOf(parent, 0) === 0 &&
+    (child[parent.length] === path.sep || child[parent.length] === undefined)
+}
+
+// path-is-inside ignored one trailing platform separator before comparison.
+function stripTrailingSeparator (value) {
+  return value[value.length - 1] === path.sep ? value.slice(0, -1) : value
+}
+
+/**
+ * Remove a leaf and then empty parent directories, stopping before base/root.
+ * Validation and callbacks intentionally retain fs-vacuum 1.2.10 timing.
+ *
+ * @param {string} leaf file, directory, or symlink to remove
+ * @param {object|null|undefined} options legacy base, purge, and log options
+ * @param {function(Error|null): void} cb completion callback
+ * @returns {void}
+ */
 function vacuum (leaf, options, cb) {
   assert(typeof leaf === 'string', 'must pass in path to remove')
   assert(typeof cb === 'function', 'must pass in callback')
@@ -41,7 +69,7 @@ function vacuum (leaf, options, cb) {
 
     if (options.purge) {
       log('purging', leaf)
-      rimraf(leaf, function (error) {
+      rm(leaf, {recursive: true, force: true}, function (error) {
         if (error) return cb(error)
 
         next(dirname(leaf))
@@ -58,6 +86,8 @@ function vacuum (leaf, options, cb) {
     }
   })
 
+  // Walk upward one branch at a time. Rechecking immediately before removal
+  // keeps newly-created entries safe and treats lost races as successful exits.
   function next (branch) {
     branch = branch && resolve(branch)
     // either we've reached the base or we've reached the root

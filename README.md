@@ -1,33 +1,62 @@
-# fs-vacuum
+# fs-vacuum-modern
 
-Remove the empty branches of a directory tree, optionally up to (but not
-including) a specified base directory. Optionally nukes the leaf directory.
+`fs-vacuum-modern` is a compatibility-focused maintained fork of
+[`fs-vacuum` 1.2.10](https://www.npmjs.com/package/fs-vacuum).
+
+It keeps the CommonJS module and callback API, supports current Node.js
+releases, and has no runtime dependencies. It is not a rewrite and does not
+claim compatibility beyond the behavior covered by this repository's tests.
 
 ## Usage
 
-```javascript
-var logger = require("npmlog");
-var vacuum = require("fs-vacuum");
+```js
+const vacuum = require('fs-vacuum-modern')
 
-var options = {
-  base  : "/path/to/my/tree/root",
-  purge : true,
-  log   : logger.silly.bind(logger, "myCleanup")
-};
+const options = {
+  base: '/path/to/my/tree/root',
+  purge: true,
+  log: (...args) => console.debug(...args)
+}
 
-/* Assuming there are no other files or directories in "out", "to", or "my",
- * the final path will just be "/path/to/my/tree/root".
- */
-vacuum("/path/to/my/tree/root/out/to/my/files", options, function (error) {
-  if (error) console.error("Unable to cleanly vacuum:", error.message);
-});
+vacuum('/path/to/my/tree/root/out/to/my/files', options, error => {
+  if (error) console.error('Unable to cleanly vacuum:', error.message)
+})
 ```
-# vacuum(directory, options, callback)
 
-* `directory` {String} Leaf node to remove. **Must be a directory, symlink, or file.**
-* `options` {Object}
-  * `base` {String} No directories at or above this level of the filesystem will be removed.
-  * `purge` {Boolean} If set, nuke the whole leaf directory, including its contents.
-  * `log` {Function} A logging function that takes `npmlog`-compatible argument lists.
-* `callback` {Function} Function to call once vacuuming is complete.
-  * `error` {Error} What went wrong along the way, if anything.
+## API
+
+### `vacuum(directory, options, callback)`
+
+- `directory` `{String}` — leaf directory, file, or symlink to remove.
+- `options` `{Object|null|undefined}`
+  - `base` `{String}` — nothing at or above this path is removed.
+  - `purge` `{Boolean}` — recursively remove a non-empty leaf first.
+  - `log` `{Function}` — receives legacy npmlog-compatible argument lists.
+- `callback` `{Function}` — Node-style callback receiving `error` or `null`.
+
+The legacy two-argument form `vacuum(directory, callback)` is intentionally not
+supported. See [COMPATIBILITY.md](COMPATIBILITY.md) for preserved quirks.
+
+## npm alias migration
+
+Existing code may keep `require('fs-vacuum')` by installing this package under
+the old dependency name:
+
+```json
+{
+  "dependencies": {
+    "fs-vacuum": "npm:fs-vacuum-modern@^1.2.10"
+  }
+}
+```
+
+Verify the resolved dependency tree and run the application's tests after the
+change.
+
+## Support
+
+Node.js 22, 24, and 26 are exercised in CI across Ubuntu, Windows, and macOS.
+The package remains CommonJS and includes TypeScript declarations for the
+existing callback API.
+
+Licensed under ISC. Original copyright and author attribution are retained.

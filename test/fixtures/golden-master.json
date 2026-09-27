@@ -1,0 +1,78 @@
+{
+  "missing": {
+    "callback": {"count": 1, "sync": false, "error": null},
+    "logs": [],
+    "tree": [".:dir", "base:dir"]
+  },
+  "empty-directory": {
+    "callback": {"count": 1, "sync": false, "error": null},
+    "logs": [
+      "removing <ROOT>/base/a/b",
+      "removing <ROOT>/base/a",
+      "finished vacuuming up to <ROOT>/base"
+    ],
+    "tree": [".:dir", "base:dir"]
+  },
+  "file": {
+    "callback": {"count": 1, "sync": false, "error": null},
+    "logs": [
+      "removing <ROOT>/base/a/file.txt",
+      "removing <ROOT>/base/a",
+      "finished vacuuming up to <ROOT>/base"
+    ],
+    "tree": [".:dir", "base:dir"]
+  },
+  "file-purge": {
+    "callback": {"count": 1, "sync": false, "error": null},
+    "logs": [
+      "purging <ROOT>/base/a/file.txt",
+      "removing <ROOT>/base/a",
+      "finished vacuuming up to <ROOT>/base"
+    ],
+    "tree": [".:dir", "base:dir"]
+  },
+  "purge-directory": {
+    "callback": {"count": 1, "sync": false, "error": null},
+    "logs": [
+      "purging <ROOT>/base/a/remove",
+      "removing <ROOT>/base/a",
+      "finished vacuuming up to <ROOT>/base"
+    ],
+    "tree": [".:dir", "base:dir"]
+  },
+  "sibling-stops-walk": {
+    "callback": {"count": 1, "sync": false, "error": null},
+    "logs": [
+      "removing <ROOT>/base/a/remove",
+      "quitting because other entries in <ROOT>/base/a"
+    ],
+    "tree": [".:dir", "base:dir", "base/a:dir", "base/a/keep.txt:file"]
+  },
+  "symlink-no-purge": {
+    "callback": {"count": 1, "sync": false, "error": null},
+    "logs": [
+      "removing <ROOT>/base/a/link",
+      "removing <ROOT>/base/a",
+      "finished vacuuming up to <ROOT>/base"
+    ],
+    "tree": [".:dir", "base:dir", "target:dir", "target/keep.txt:file"]
+  },
+  "symlink-purge": {
+    "callback": {"count": 1, "sync": false, "error": null},
+    "logs": [
+      "purging <ROOT>/base/a/link",
+      "removing <ROOT>/base/a",
+      "finished vacuuming up to <ROOT>/base"
+    ],
+    "tree": [".:dir", "base:dir", "target:dir", "target/keep.txt:file"]
+  },
+  "broken-symlink": {
+    "callback": {"count": 1, "sync": false, "error": null},
+    "logs": [
+      "removing <ROOT>/base/a/link",
+      "removing <ROOT>/base/a",
+      "finished vacuuming up to <ROOT>/base"
+    ],
+    "tree": [".:dir", "base:dir"]
+  }
+}
